@@ -1,0 +1,36 @@
+# This policy uses the Sentinel tfplan/v2 import to require that
+# all ECS Task Definitinos have the Team key in the tags attribute
+# and that it has a value from an allowed list
+
+# Import common-functions/tfplan-functions/tfplan-functions.sentinel
+# with alias "plan"
+import "tfplan-functions" as plan
+
+# Mandatory tags
+mandatoryTags = ["team"]
+
+# Allowed Teams
+# Include "null" to allow missing or computed values
+allowedTeams = ["dev", "sec", "ops"]
+
+# Get all ECS Task Definitions instances
+allECSTaskDefinitions = plan.find_resources("aws_ecs_task_definition")
+
+# Filter to ECS Task Definitions that are missing the team tag
+# Warnings will be printed for all violations since the last parameter is true
+TaskDefinitionsWithoutTeamTag =
+        plan.filter_attribute_not_contains_list(allECSTaskDefinitions,
+                        "tags", mandatoryTags, true)
+
+# Filter to ECS Task Definitions that have the team tag with an invalid value
+# Warnings will be printed for all violations since the last parameter is true
+TaskDefinitionsWithInvalidTeamTag = plan.filter_attribute_map_key_contains_items_not_in_list(allECSTaskDefinitions,
+                        "tags", "team", allowedTeams, true)
+
+# Count violations
+violations = length(TaskDefinitionsWithoutTeamTag["messages"]) + length(TaskDefinitionsWithInvalidTeamTag["messages"])
+
+# Main rule
+main = rule {
+  violations is 0
+}
