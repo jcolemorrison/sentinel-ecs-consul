@@ -11,7 +11,7 @@ All of the `aws` functions and `common-functions` are lifted from the [Terraform
 
 ## The Architecture
 
-![Terraform with Amazon ECS and Consul](images/Terraform%20with%20Amazon%20ECS%20and%20Consul.png)
+![Terraform with Amazon ECS and Consul](images/terraform-ecs-consul.png)
 
 The above represents the architecture these policies guard.
 
